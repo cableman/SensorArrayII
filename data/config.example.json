@@ -1,0 +1,10 @@
+{
+    "name": "Sensor1",
+    "interval": 5000,
+    "mqtt_addr": "10.0.0.1",
+    "mqtt_port": "1887",
+    "mqtt_username": "admin",
+    "mqtt_passwd": "admin1234",
+    "wifi_ssid": "TestNet",
+    "wifi_password": "p4ssW0rd"
+}
