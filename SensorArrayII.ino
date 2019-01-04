@@ -59,6 +59,7 @@ void setup() {
       delay(500);
       Serial.print(".");
     }
+    Serial.println("");
 
     randomSeed(micros());
     
@@ -88,6 +89,7 @@ void setup() {
     ticker.detach();
   }
   else {
+    Serial.println("Configuration file not loaded...");
     // Flash led fast to indicate missing config.json file.
     error(0.5);
   }

@@ -2,7 +2,8 @@
 
 MqttServer::MqttServer() {
   WiFiClient espClient;
-  this->client = new PubSubClient(espClient);
+  this->espClient = espClient;
+  this->client = new PubSubClient(this->espClient);
 }
 
 void MqttServer::setServerAddr(const char* addr) {
@@ -44,14 +45,10 @@ bool MqttServer::disconnect() {
  * Send message.
  */
 bool MqttServer::sendMessage(const char* type, const char* message) {
-  if (!this->client->connected()) {
-    this->reconnect();
-  }
+  this->connect();
 
   String t = this->topic + type;
   this->client->publish(t.c_str(), message);
-
-  yield();
 
   // Listen for incomming messages. This assumes that the sendMessage is
   // used inside the main loop theard.
@@ -61,14 +58,12 @@ bool MqttServer::sendMessage(const char* type, const char* message) {
 /**
  * Reconnect to the MQTT server.
  */
-void MqttServer::reconnect() {
-  // Loop until we're reconnected
+void MqttServer::connect() {
   if (!this->client->connected()) {
     // Attempt to connect
     if (!this->client->connect(this->name, this->username, this->password)) {
       Serial.println("Unable to connect to MQTT server: ");
       Serial.println(this->addr);
-      yield();
     }
   }
 }
