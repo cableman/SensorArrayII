@@ -65,7 +65,7 @@ void MqttServer::reconnect() {
   // Loop until we're reconnected
   if (!this->client->connected()) {
     // Attempt to connect
-    if (!client->connect(this->name, this->username, this->password)) {
+    if (!this->client->connect(this->name, this->username, this->password)) {
       Serial.println("Unable to connect to MQTT server: ");
       Serial.println(this->addr);
       yield();
