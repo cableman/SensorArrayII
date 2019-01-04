@@ -34,7 +34,7 @@ void error(float interval) {
   ticker.detach();
   ticker.attach(interval, tick);
   delay(10000);
-  ESP.reset();
+  //ESP.reset();
 }
 
 /**
@@ -42,7 +42,7 @@ void error(float interval) {
  */
 void setup() {
   Serial.begin(115200);
-  delay(500);
+  Serial.println("READY...");
 
   // Set led pin as output
   pinMode(LED_BUILTIN, OUTPUT);
@@ -59,7 +59,10 @@ void setup() {
       delay(500);
       Serial.print(".");
     }
-    Serial.println("local ip: ");
+
+    randomSeed(micros());
+    
+    Serial.print("local ip: ");
     Serial.println(WiFi.localIP());
 
     // mDNS setup.

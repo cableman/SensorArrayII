@@ -32,6 +32,8 @@ bool Config::load() {
 
           strcpy(this->wifi.ssid, json["wifi_ssid"]);
           strcpy(this->wifi.password, json["wifi_password"]);
+
+          Serial.println("Config JSON parsed");
         } 
         else {
           Serial.println("Config JSON file not parsed");

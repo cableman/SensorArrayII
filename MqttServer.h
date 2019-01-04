@@ -33,7 +33,7 @@ class MqttServer {
     char name[34];
     String topic;
 
-    PubSubClient* client;
+    PubSubClient *client;
 };
 
 #endif
