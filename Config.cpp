@@ -19,24 +19,30 @@ bool Config::load() {
         std::unique_ptr<char[]> buf(new char[size]);
         configFile.readBytes(buf.get(), size);
 
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject& json = jsonBuffer.parseObject(buf.get());
-        if (json.success()) {
-          strcpy(this->name, json["name"]);
-          this->interval = json["interval"];
-          
-          strcpy(this->mqtt.addr, json["mqtt_addr"]);
-          this->mqtt.port = json["mqtt_port"];
-          strcpy(this->mqtt.username, json["mqtt_username"]);
-          strcpy(this->mqtt.password, json["mqtt_passwd"]);
+        Serial.print("Size: ");
+        Serial.println(size);
 
-          strcpy(this->wifi.ssid, json["wifi_ssid"]);
-          strcpy(this->wifi.password, json["wifi_password"]);
+        DynamicJsonDocument doc(size);
+        auto error = deserializeJson(doc, buf.get());
+
+        //JsonObject& json = jsonBuffer.parseObject(buf.get());
+        if (!error) {
+          strcpy(this->name, doc["name"]);
+          this->interval = doc["interval"];
+          
+          strcpy(this->mqtt.addr, doc["mqtt_addr"]);
+          this->mqtt.port = doc["mqtt_port"];
+          strcpy(this->mqtt.username, doc["mqtt_username"]);
+          strcpy(this->mqtt.password, doc["mqtt_passwd"]);
+
+          strcpy(this->wifi.ssid, doc["wifi_ssid"]);
+          strcpy(this->wifi.password, doc["wifi_password"]);
 
           Serial.println("Config JSON parsed");
         } 
         else {
           Serial.println("Config JSON file not parsed");
+          Serial.println(error.c_str());
           return false;
         }
         configFile.close();

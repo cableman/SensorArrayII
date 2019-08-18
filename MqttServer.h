@@ -25,7 +25,7 @@ class MqttServer {
     bool sendMessage(const char* type, const char* message);
 
   private:
-    void reconnect();
+    void connect();
     char addr[40];
     int port;
     char password[34];
@@ -34,6 +34,7 @@ class MqttServer {
     String topic;
 
     PubSubClient *client;
+    WiFiClient espClient;
 };
 
 #endif
