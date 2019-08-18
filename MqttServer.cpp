@@ -29,7 +29,7 @@ void MqttServer::setName(const char* name) {
 /**
  * Set configuration and begin the process.
  */
-bool MqttServer::begin() {
+void MqttServer::begin() {
   this->client->setServer(this->addr, this->port);
 
   this->topic = "/esp/";
@@ -37,14 +37,14 @@ bool MqttServer::begin() {
   this->topic += "/";
 }
 
-bool MqttServer::disconnect() {
+void MqttServer::disconnect() {
   this->client->disconnect();
 }
 
 /**
  * Send message.
  */
-bool MqttServer::sendMessage(const char* type, const char* message) {
+void MqttServer::sendMessage(const char* type, const char* message) {
   this->connect();
 
   String t = this->topic + type;

@@ -20,9 +20,9 @@ class MqttServer {
     void setServerUsername(const char* username);
     void setName(const char* name);
 
-    bool begin();
-    bool disconnect();
-    bool sendMessage(const char* type, const char* message);
+    void begin();
+    void disconnect();
+    void sendMessage(const char* type, const char* message);
 
   private:
     void connect();
