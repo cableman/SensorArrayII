@@ -10,6 +10,9 @@ Sensors sensors(SDA, SCL, D3);
 #include "MqttServer.h"
 MqttServer mqtt;
 
+#include "Display.h"
+Display display;
+
 // LED status.
 #include <Ticker.h>
 Ticker ticker;
@@ -44,6 +47,10 @@ void setup() {
   Serial.begin(115200);
   Serial.println("READY...");
 
+  // Init display
+  display.begin();
+  display.write("Loading", "");
+
   // Set led pin as output
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -64,7 +71,12 @@ void setup() {
     randomSeed(micros());
     
     Serial.print("local ip: ");
-    Serial.println(WiFi.localIP());
+    String ip = WiFi.localIP().toString();
+    Serial.println(ip);
+
+    display.write("IP", ip.c_str());
+    delay(5000);
+    display.clear();
 
     // mDNS setup.
     if (!MDNS.begin(config.name)) {
@@ -110,7 +122,7 @@ void loop() {
     Serial.print(humidity);
     Serial.println(" % ");
 
-     mqtt.sendMessage("humidity", String(humidity).c_str());
+    mqtt.sendMessage("humidity", String(humidity).c_str());
   }
 
   const float temperature = sensors.getTemperature();
@@ -120,6 +132,8 @@ void loop() {
     Serial.println(" C ");
 
     mqtt.sendMessage("temperature", String(temperature).c_str());
+
+    display.write("Temperature", String(temperature).c_str());
   }
 
   const float heatindex = sensors.getHeatIndex();
