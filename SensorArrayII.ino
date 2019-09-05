@@ -1,7 +1,5 @@
-#include <ESP8266WiFi.h>
-
-// DNS (mDNS).
-#include <ESP8266mDNS.h>
+// WifiConfiguraion.
+#include "WifiSetup.h"
 
 // Create sensor object.
 #include "Sensors.h"
@@ -45,7 +43,6 @@ void error(float interval) {
  */
 void setup() {
   Serial.begin(115200);
-  Serial.println("READY...");
 
   // Init display
   display.begin();

@@ -1,8 +1,9 @@
 #ifndef Config_h
 #define Config_h
 
-#include <Arduino.h>
+#include "Datastructure.h"
 
+#include <Arduino.h>
 #include <FS.h>
 #include <ArduinoJson.h>
 
@@ -19,18 +20,8 @@ class Config {
     char name[34];
     int interval;
 
-    struct mqtt {
-      char addr[40];
-      int port;
-      char password[34];
-      char username[34];
-    } mqtt;
-
-    struct wifi {
-      char ssid[32];
-      char password[32];
-    } wifi;
+    mqttConf mqtt;
+    wifiConf wifi;
 };
-
 
 #endif

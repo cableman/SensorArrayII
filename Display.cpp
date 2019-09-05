@@ -1,7 +1,7 @@
 #include "Display.h"
 
 Display::Display() {
-    this->display = new Adafruit_SSD1306(OLED_RESET);;
+    this->display = new Adafruit_SSD1306(OLED_RESET);
 }
 
 void Display::begin() {

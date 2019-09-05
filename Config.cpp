@@ -19,7 +19,7 @@ bool Config::load() {
         std::unique_ptr<char[]> buf(new char[size]);
         configFile.readBytes(buf.get(), size);
 
-        Serial.print("Size: ");
+        Serial.print("Config file size: ");
         Serial.println(size);
 
         DynamicJsonDocument doc(size);
