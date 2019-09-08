@@ -15,13 +15,9 @@ class Config {
     Config();
 
     bool load();
-
-    // Sensor name.
-    char name[34];
-    int interval;
+    bool save();
 
     mqttConf mqtt;
-    wifiConf wifi;
 };
 
 #endif

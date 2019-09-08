@@ -10,18 +10,18 @@
 class WifiSetup {
   public:
     // Constructor(s)
-    WifiSetup(wifiConf wifiConfig, mqttConf mqttConfig);
+    WifiSetup(mqttConf mqttConfig);
 
-    void begin(char name[40], char addr[40], int port, char username[34], char password[34]);
+    void begin();
     bool hasConfigChanged();
-    static void saveConfigCallback();
-    wifiConf getWifiConfiguration();
-    mqttConf getattrlist();
+    IPAddress getIp();
+    mqttConf getConfig();
 
-  private:
-    wifiConf wifiConfig;
-    mqttConf mqttConfig;
+    static void saveConfigCallback();
     static bool shouldSaveConfig;
+    
+  private:
+    mqttConf mqttConfig;
 };
 
 #endif

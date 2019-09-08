@@ -2,6 +2,7 @@
 
 Display::Display() {
     this->display = new Adafruit_SSD1306(OLED_RESET);
+    this->clear();
 }
 
 void Display::begin() {

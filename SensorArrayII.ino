@@ -43,10 +43,11 @@ void error(float interval) {
  */
 void setup() {
   Serial.begin(115200);
+  delay(2000);
 
   // Init display
   display.begin();
-  display.write("Loading", "");
+  display.write("Booting", "");
 
   // Set led pin as output
   pinMode(LED_BUILTIN, OUTPUT);
@@ -55,53 +56,54 @@ void setup() {
   ticker.attach(1, tick);
 
   // Load configuration.
-  if (config.load()) {
-    // Connect to WiFi.
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(config.wifi.ssid, config.wifi.password);
-      while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      Serial.print(".");
-    }
-    Serial.println("");
-
-    randomSeed(micros());
-    
-    Serial.print("local ip: ");
-    String ip = WiFi.localIP().toString();
-    Serial.println(ip);
-
-    display.write("IP", ip.c_str());
-    delay(5000);
-    display.clear();
-
-    // mDNS setup.
-    if (!MDNS.begin(config.name)) {
-      Serial.println("Error setting up MDNS responder!");
-      error(0.8);
-    }
-
-    // Set MQTT configuration.
-    mqtt.setName(config.name);
-    mqtt.setServerAddr(config.mqtt.addr);
-    mqtt.setServerPort(config.mqtt.port);
-    mqtt.setServerUsername(config.mqtt.username);
-    mqtt.setServerPassword(config.mqtt.password);
-
-    // Start the MQTT process.
-    mqtt.begin();
-
-    // Init the sensors.
-    sensors.begin();
-
-    // Stop led flashing.
-    ticker.detach();
+  if (!config.load()) {
+    // Set defaults.
+    display.write("No config", "");
+    config.mqtt.interval = 5000;
   }
   else {
-    Serial.println("Configuration file not loaded...");
-    // Flash led fast to indicate missing config.json file.
-    error(0.5);
+    display.write("Config loaded", "");
   }
+  
+  // Start wifi manager.
+  WifiSetup* wifiSetup = new WifiSetup(config.mqtt);
+  wifiSetup->begin();
+
+  Serial.print("Config state: ");
+  Serial.println(wifiSetup->hasConfigChanged());
+  if (wifiSetup->hasConfigChanged()) {
+    // Save configuration.
+    config.mqtt = wifiSetup->getConfig();
+    config.save();
+    Serial.println(config.mqtt.name);
+  }
+  delay(5000);
+
+  randomSeed(micros());
+  
+  Serial.print("local ip: ");
+  String ip =  wifiSetup->getIp().toString();
+  Serial.println(ip);
+
+  display.write("IP", ip.c_str());
+  delay(5000);
+  display.clear();
+
+  // Set MQTT configuration.
+  mqtt.setName(config.mqtt.name);
+  mqtt.setServerAddr(config.mqtt.addr);
+  mqtt.setServerPort(config.mqtt.port);
+  mqtt.setServerUsername(config.mqtt.username);
+  mqtt.setServerPassword(config.mqtt.password);
+
+  // Start the MQTT process.
+  mqtt.begin();
+
+  // Init the sensors.
+  sensors.begin();
+
+  // Stop led flashing.
+  ticker.detach();
 }
 
 /**
@@ -172,5 +174,5 @@ void loop() {
   digitalWrite(LED_BUILTIN, HIGH);
   Serial.println("................");
 
-  delay(config.interval);
+  delay(config.mqtt.interval);
 }

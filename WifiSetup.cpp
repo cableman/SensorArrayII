@@ -1,9 +1,10 @@
 #include "WifiSetup.h"
 
-WifiSetup::WifiSetup(wifiConf wifiConfig, mqttConf mqttConfig) {
+bool WifiSetup::shouldSaveConfig = false;
+
+WifiSetup::WifiSetup(mqttConf mqttConfig) {
     WifiSetup::shouldSaveConfig = false;
 
-    this->wifiConfig = wifiConfig;
     this->mqttConfig = mqttConfig;
 }
 
@@ -11,65 +12,71 @@ bool WifiSetup::hasConfigChanged() {
   return WifiSetup::shouldSaveConfig;
 }
 
+IPAddress WifiSetup::getIp() {
+  return WiFi.localIP();
+}
+
 void WifiSetup::saveConfigCallback () {
   WifiSetup::shouldSaveConfig = true;
 }
 
-void WifiSetup::begin(char name[40], char addr[40], int port, char username[34], char password[34]) {
+mqttConf WifiSetup::getConfig() {
+  return this->mqttConfig;
+}
 
-  WiFiManagerParameter custom_name("name", "Name", name, 40);
-  WiFiManagerParameter custom_mqtt_addr("addr", "mqtt adress", addr, 40);
-  WiFiManagerParameter custom_mqtt_port("port", "mqtt port", String(port).c_str(), 34);
-  WiFiManagerParameter custom_mqtt_username("username", "mqtt username", username, 34);
-  WiFiManagerParameter custom_mqtt_password("password", "mqtt password", password, 34);
+void WifiSetup::begin() {
+  WiFiManagerParameter custom_name("name", "Name", this->mqttConfig.name, 40);
+  WiFiManagerParameter custom_interval("interval", "Publish interval", String(this->mqttConfig.interval).c_str(), 10);
+
+  WiFiManagerParameter custom_mqtt_addr("addr", "mqtt adress", this->mqttConfig.addr, 40);
+  WiFiManagerParameter custom_mqtt_port("port", "mqtt port", String(this->mqttConfig.port).c_str(), 34);
+  WiFiManagerParameter custom_mqtt_username("username", "mqtt username", this->mqttConfig.username, 34);
+  WiFiManagerParameter custom_mqtt_password("password", "mqtt password", this->mqttConfig.password, 34);
 
   //WiFiManager
   //Local intialization. Once its business is done, there is no need to keep it around
   WiFiManager wifiManager;
 
-  //set config save notify callback
-  wifiManager.setSaveConfigCallback(WifiSetup::saveConfigCallback);
+  // Reset settings - for testing
+  //wifiManager.resetSettings();
 
-  // set static ip
-  wifiManager.setSTAStaticIPConfig(IPAddress(10,0,1,99), IPAddress(10,0,1,1), IPAddress(255,255,255,0));
-  
+  // set config save notify callback
+  wifiManager.setSaveConfigCallback(WifiSetup::saveConfigCallback);
+ 
   // Add all your parameters here.
   wifiManager.addParameter(&custom_name);
   wifiManager.addParameter(&custom_mqtt_addr);
   wifiManager.addParameter(&custom_mqtt_port);
   wifiManager.addParameter(&custom_mqtt_username);
   wifiManager.addParameter(&custom_mqtt_password);
+  wifiManager.addParameter(&custom_interval);
 
-  //reset settings - for testing
-  //wifiManager.resetSettings();
-
-  //set minimu quality of signal so it ignores AP's under that quality
-  //defaults to 8%
-  //wifiManager.setMinimumSignalQuality();
-  
-  //sets timeout until configuration portal gets turned off
-  //useful to make it all retry or go to sleep
-  //in seconds
-  //wifiManager.setTimeout(120);
-
-  //fetches ssid and pass and tries to connect
-  //if it does not connect it starts an access point with the specified name
-  //here  "AutoConnectAP"
-  //and goes into a blocking loop awaiting configuration
-  if (!wifiManager.autoConnect("SensorArray", "SensorArray")) {
-    Serial.println("failed to connect and hit timeout");
+  if (!wifiManager.autoConnect("SensorArray", "Sensor")) {
+    Serial.println("Failed to connect and hit timeout");
     delay(3000);
-    //reset and try again, or maybe put it to deep sleep
     ESP.reset();
     delay(5000);
   }
 
-  //if you get here you have connected to the WiFi
+  /**
+  "WL_IDLE_STATUS      = 0\n"
+  "WL_NO_SSID_AVAIL    = 1\n"
+  "WL_SCAN_COMPLETED   = 2\n"
+  "WL_CONNECTED        = 3\n"
+  "WL_CONNECT_FAILED   = 4\n"
+  "WL_CONNECTION_LOST  = 5\n"
+  "WL_DISCONNECTED     = 6\n"
+  */
+
+  // If you get here you have connected to the WiFi
   Serial.println("connected...yeey :)");
 
-  if (shouldSaveConfig) {
-    //strcpy(mqtt_server, custom_mqtt_server.getValue());
-    //strcpy(mqtt_port, custom_mqtt_port.getValue());
-    //strcpy(blynk_token, custom_blynk_token.getValue());
+  if (WifiSetup::shouldSaveConfig) {
+    strncpy(this->mqttConfig.name, custom_name.getValue(), strlen(this->mqttConfig.name));
+    strncpy(this->mqttConfig.addr, custom_mqtt_addr.getValue(), strlen(this->mqttConfig.addr));
+    this->mqttConfig.port = atoi(custom_mqtt_port.getValue());
+    strncpy(this->mqttConfig.password, custom_mqtt_password.getValue(), strlen(this->mqttConfig.password));
+    strncpy(this->mqttConfig.username, custom_mqtt_password.getValue(), strlen(this->mqttConfig.username));
+    this->mqttConfig.interval = atoi(custom_interval.getValue());
   }
 }
