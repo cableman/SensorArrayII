@@ -59,23 +59,21 @@ void setup() {
   if (!config.load()) {
     // Set defaults.
     display.write("No config", "");
+    config.mqtt.port = 1883;
     config.mqtt.interval = 5000;
   }
   else {
     display.write("Config loaded", "");
   }
-  
+
   // Start wifi manager.
   WifiSetup* wifiSetup = new WifiSetup(config.mqtt);
   wifiSetup->begin();
 
-  Serial.print("Config state: ");
-  Serial.println(wifiSetup->hasConfigChanged());
   if (wifiSetup->hasConfigChanged()) {
     // Save configuration.
     config.mqtt = wifiSetup->getConfig();
     config.save();
-    Serial.println(config.mqtt.name);
   }
   delay(5000);
 

@@ -25,16 +25,9 @@ bool Config::load() {
         Serial.print("Config file size: ");
         Serial.println(size);
 
-        DynamicJsonDocument doc(size);
+        const size_t capacity = JSON_OBJECT_SIZE(6) + 250;
+        DynamicJsonDocument doc(capacity);
         auto error = deserializeJson(doc, buf.get());
-        JsonObject obj = doc.as<JsonObject>();
-
-        Serial.print("Data: ");
-        Serial.println(obj.containsKey("name"));
-        const char* name1 = obj["name"];
-        Serial.print("Content: ");
-        Serial.println(name1);
-
 
         if (!error) {
           strcpy(this->mqtt.name, doc["name"]);
@@ -77,17 +70,21 @@ bool Config::save() {
     File configFile = SPIFFS.open(CONFIG_FILE, "w");
   
     if (configFile) {
-      const size_t capacity = JSON_OBJECT_SIZE(6);
+      const size_t capacity = JSON_OBJECT_SIZE(6) + 500;
       DynamicJsonDocument doc(capacity);
 
-      doc["name"] = String(this->mqtt.name);
+      doc["name"] = this->mqtt.name;
       doc["interval"] = this->mqtt.interval;
-      doc["mqtt_addr"] = String(this->mqtt.addr);
+      doc["mqtt_addr"] = this->mqtt.addr;
       doc["mqtt_port"] = this->mqtt.port;
-      doc["mqtt_username"] = String(this->mqtt.username);
-      doc["mqtt_passwd"] = String(this->mqtt.password);
+      doc["mqtt_username"] = this->mqtt.username;
+      doc["mqtt_passwd"] = this->mqtt.password;
 
-      serializeJson(doc, configFile);
+      serializeJson(doc, Serial);
+
+      if (serializeJson(doc, configFile) == 0) {
+        Serial.println(F("Failed to write to file"));
+      }
       configFile.close();
     }
     else {
