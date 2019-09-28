@@ -1,27 +1,45 @@
 #include "MqttServer.h"
 
+/**
+ * Constructor.
+ */
 MqttServer::MqttServer() {
   WiFiClient espClient;
   this->espClient = espClient;
   this->client = new PubSubClient(this->espClient);
 }
 
+/**
+ * Set server address for the MQTT broker. 
+ */
 void MqttServer::setServerAddr(const char* addr) {
   strcpy(this->addr, addr);
 }
 
+/**
+ * Set MQTT port.
+ */
 void MqttServer::setServerPort(int port) {
   this->port = port;
 }
 
+/**
+ * Set MQTT broker password.
+ */
 void MqttServer::setServerPassword(const char* password) {
   strcpy(this->password, password);
 }
 
+/**
+ * Ser MQTT broker username.
+ */
 void MqttServer::setServerUsername(const char* username) {
   strcpy(this->username, username);
 }
 
+/**
+ * Set Sensor name also used in the topic name in the MQTT messages.
+ */
 void MqttServer::setName(const char* name) {
   strcpy(this->name, name);
 }
@@ -37,6 +55,9 @@ void MqttServer::begin() {
   this->topic += "/";
 }
 
+/**
+ * Disconnect from the MQTT broker.
+ */
 void MqttServer::disconnect() {
   this->client->disconnect();
 }

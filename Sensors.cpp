@@ -79,7 +79,8 @@ float Sensors::getHumidity() {
 }
 
 /**
- * Get heat-index (how hot it really feels when relative humidity is factored in with the actual air temperature).
+ * Get heat-index (how hot it really feels when relative humidity is 
+ * factored in with the actual air temperature).
  */
 float Sensors::getHeatIndex() {
   const float h = this->getHumidity();

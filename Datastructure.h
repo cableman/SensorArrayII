@@ -1,6 +1,9 @@
 #ifndef Datastructure_h
 #define Datastructure_h
 
+/**
+ * MQTT configuration.
+ */
 struct mqttConf {
       char name[40];
       char addr[40];

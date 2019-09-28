@@ -6,6 +6,9 @@
 Config::Config() {
 }
 
+/**
+ * Load configuration from json file.
+ */
 bool Config::load() {
   if (SPIFFS.begin()) {
     Serial.println("SPIFFS started");
@@ -65,6 +68,9 @@ bool Config::load() {
   return true;
 }
 
+/**
+ * Save configuration into json file.
+ */
 bool Config::save() {
     if (SPIFFS.begin()) {
     File configFile = SPIFFS.open(CONFIG_FILE, "w");
@@ -80,11 +86,10 @@ bool Config::save() {
       doc["mqtt_username"] = this->mqtt.username;
       doc["mqtt_passwd"] = this->mqtt.password;
 
-      serializeJson(doc, Serial);
-
       if (serializeJson(doc, configFile) == 0) {
         Serial.println(F("Failed to write to file"));
       }
+
       configFile.close();
     }
     else {
