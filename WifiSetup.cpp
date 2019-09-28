@@ -67,6 +67,9 @@ void WifiSetup::begin() {
   // Reset settings - for testing
   //wifiManager.resetSettings();
 
+  // Disable default serial debug output.
+  wifiManager.setDebugOutput(false);
+
   // set config save notify callback
   wifiManager.setSaveConfigCallback(WifiSetup::saveConfigCallback);
  
